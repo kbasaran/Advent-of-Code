@@ -24,10 +24,11 @@ for i_start in range(len(p_in) - 2):
     i = i_start + 2
     while i < len(p_in):
         numbers = p_in[i_start:i]
-        valid = (sum(numbers) == target)
+        sum_numbers = sum(numbers)
+        valid = (sum_numbers == target)
         if valid:
             answer = min(numbers) + max(numbers)
             print(f"Pos {i_start+1} and Pos {i} => Sum is {answer}")
-        if answer > target:
+        if sum_numbers > target:
             break
         i += 1
