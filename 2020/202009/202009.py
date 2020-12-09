@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Dec  7 22:37:20 2020
-
-@author: kerem.basaran
-"""
-
 from itertools import combinations
 
 with open("input.txt") as f:
