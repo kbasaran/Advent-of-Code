@@ -9,8 +9,8 @@ with open("input.txt") as f:
     # %% Part 1
     Answers, count = [], 0
     for group in f.read().split("\n\n"):
-        Answers.append(group)
-        chars = group.strip().replace("\n", "")
+        Answers.append(group.strip())
+        chars = Answers[-1].replace("\n", "")
         count += len(set(chars))
     print(count)
 
