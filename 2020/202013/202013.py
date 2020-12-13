@@ -50,7 +50,7 @@ busses = []
 for i, val in enumerate(input_l2):
     if val.isdigit():
         busses.append((int(val), i))
-busses = np.array(busses)  # first column is bus id, second column is its minute offset
+busses = np.array(busses).astype(np.int64)  # first column is bus id, second column is its minute offset
 
 timestamp = 0
 dividors_of_step = set([busses[0, 0]])
