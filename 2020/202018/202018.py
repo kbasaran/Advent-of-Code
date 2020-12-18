@@ -10,6 +10,7 @@ import numpy as np
 with open("input.txt") as f:
     p_in = f.read().splitlines()
 
+
 def calculate_with_left_operation_first(string):
     strl = string.strip("()").split(" ")
     while len(strl) > 1:
@@ -40,15 +41,18 @@ def solve_a_line(line):
     return calculate_with_left_operation_first(string)
 
 
+# Go through the puzzle input and sum the results
 sum_lines = 0
 for line in p_in:
     sum_lines += solve_a_line(line)
 
 print(sum_lines)
 
+
 # %% Part 2
 def calculate_with_addition_first(string):
     strl = string.strip("()").split(" ")
+    # Do all the addition operations
     while "+" in strl:
         for i, chars in enumerate(strl):
             if chars == "+":
@@ -57,6 +61,7 @@ def calculate_with_addition_first(string):
                 strl = strl[:pos[0]] + [val] + strl[pos[1]+1:]
                 break
 
+    # Take product of all the rest (after removing the * signs from in betweens)
     multips = np.prod([np.int64(val) for val in strl if val != "*"])
     return multips
 
@@ -81,6 +86,7 @@ def solve_a_line_p2(line):
     return calculate_with_addition_first(string)
 
 
+# Go through the puzzle input and sum the results
 sum_lines = 0
 for line in p_in:
     sum_lines += solve_a_line_p2(line)
