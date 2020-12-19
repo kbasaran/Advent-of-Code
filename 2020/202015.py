@@ -11,19 +11,18 @@ import time
 p_in = [6, 19, 0, 5, 7, 13, 1]
 
 start = time.time()
-turn_amount = 30000000
+turn_amount = 30_000_000
 
 # Storage matrix. Cols are the numbers that get spoken.
 # The two rows represent the last two encounters the number has been spoken
 # Cell value is the turn at which the number has been spoken
-nf = np.full((2,turn_amount), -1, dtype=np.int32)
-
-spoken = np.int32(-1)
-turn = np.int32(0)
+nf = np.full((2, turn_amount), -1, dtype=np.int32)
+spoken = -1
+turn = 0
 
 
 def new_turn(predefined=-1):
-    global nf, turn, spoken
+    global nf, spoken, turn
     turn += 1
 
     last_spoken_val = spoken
