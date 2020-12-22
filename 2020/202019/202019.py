@@ -16,68 +16,96 @@ for line in MESSAGES_ENC:
         else:
             line[pos] = 201
 
-rule_dict = {}
+RULE_DICT = {}
 for line in RULEBOOK.splitlines():
     no, rest = line.split(": ")
     no = int(no)
     rest = rest.replace("\"a\"", "201").replace("\"b\"", "202").split(" ")
     if (len(rest) == 2) & ("|" not in rest):
-        rule_dict[no] = [[int(rest[0]), int(rest[1])]]
+        RULE_DICT[no] = [[int(rest[0]), int(rest[1])]]
 
     elif (len(rest) == 3) & ("|" in rest):
-        rule_dict[no] = [[int(rest[0])], [int(rest[2])]]
+        RULE_DICT[no] = [[int(rest[0])], [int(rest[2])]]
 
     elif (len(rest) == 5) & ("|" in rest):
-        rule_dict[no] = [[int(rest[0]), int(rest[1])], [int(rest[3]), int(rest[4])]]
+        RULE_DICT[no] = [[int(rest[0]), int(rest[1])], [int(rest[3]), int(rest[4])]]
 
     elif (len(rest) == 1):
-        rule_dict[no] = [[int(rest[0])]]
+        RULE_DICT[no] = [[int(rest[0])]]
 
     else:
         raise ValueError(f"What is this line: {line}")
 
 
 def apply_rule_to_position_in_list(comb, pos):
-    global rule_dict
-    new_liob = []
-    if comb[pos] in rule_dict.keys():
-        for rule_val in rule_dict[comb[pos]]:
-            new_liob.append(comb[:pos] + rule_val + comb[pos+1:])
-        return new_liob
+    global RULE_DICT
+    new_combs = []
+    if comb[pos] in RULE_DICT.keys():
+        for rule_val in RULE_DICT[comb[pos]]:
+            new_combs.append(comb[:pos] + rule_val + comb[pos+1:])
+        return new_combs
     else:
         return []
 
 
-def check_if_message_matches(message):
-    possibles = [[8, 11]]
+def check_if_message_matches(message, to_match):
+    possibles = list(to_match)
     pos = 0
     while 1:
-        comb = possibles.pop()  # take the latest combination out of the possibilities stack
-        if comb[pos] != message[pos]:  # if the value at position does not match the message we are checking against
-            # Check for a new combination by replacing the latest value we checked from the dictionary
-            new_combs = apply_rule_to_position_in_list(comb, pos)
-            if len(new_combs) == 0:  # if not found in the dictionary
+
+        comb = possibles[-1]  # use the list as a stack
+
+        if comb[pos] == message[pos]:  # for this combination in our stack, value at position 'pos' is matching the message
+
+            if (pos == len(message) - 1) & (pos == len(comb) - 1):  # we reached the end of the message. message is valid.
+                return True
+
+            elif (pos < len(comb) - 1) & (pos < len(message) - 1):  # valid until now but still and need to check further positions of the message.
+                pos += 1  # move to the next position (still checking the same combination, only moving to next letter)
+
+            else:  # exhausted this combination. discard it.
+                possibles.pop()
                 pos = 0
-            else:
+
+        else:  # value at position 'pos' does not match the message we are checking against
+
+            possibles.pop()  # remove this combination from the stack
+
+            if new_combs := apply_rule_to_position_in_list(comb, pos):  # and try to replace
                 for new_comb in new_combs:
                     possibles.append(new_comb)  # add the new combinations to our possibilities list
-        else:  # position for this combination was correct
-            pos += 1  # move to the next position (for the same combination, that will be)
-            if pos == len(message):  # if reached the end of the message, message is valid
-                return True
-            elif pos < len(comb):  # if we are not at the end of this combination
-                possibles.append(comb)  # put the combination back in the stack. we'll continue checking it and creating variables of it
-            else:  # exhausted this combination. don't put it back in the list.
+
+            else:
                 pos = 0
+
         if len(possibles) == 0:
             return False
 
 
+# %% Part 1
 counter = 0
+to_match = [[8, 11]]
 for message_enc in MESSAGES_ENC:
-    counter += check_if_message_matches(message_enc)
+    counter += check_if_message_matches(message_enc, to_match)
 
-print(counter)
+print(f"Answer: {counter}")
 print(f"Elapsed time: {time.time() - start:.4g}s")
 
+
 # %% Part 2
+start2 = time.time()
+
+# Possible combinations are a list of [n*42, m*42, m*31]
+# Add combinations based on this to the list the function will check against
+to_match = []
+for n in range(1, 9):
+    for m in range(1, 9):
+        comb = [42] * (n+m) + [31] * m
+        to_match.append(comb)
+
+counter = 0
+for message_enc in MESSAGES_ENC:
+    counter += check_if_message_matches(message_enc, to_match)
+
+print(f"Answer: {counter}")
+print(f"Elapsed time: {time.time() - start2:.4g}s")
