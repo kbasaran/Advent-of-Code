@@ -10,7 +10,7 @@ from pathlib import Path
 P_IN = Path.cwd().joinpath("input.txt").read_text()
 
 
-def day1rule(digits):
+def part1rule(digits):
     sum = 0
     for i, digit in enumerate(digits):
         if digit == digits[(i + 1) % len(digits)]:
@@ -18,8 +18,7 @@ def day1rule(digits):
     return sum
 
 
-
-def day2rule(digits):
+def part2rule(digits):
     half_way_length = int(len(digits) / 2)
     sum = 0
     for i in range(len(digits)):
@@ -28,5 +27,8 @@ def day2rule(digits):
     return sum
 
 
-print(f"Result: {day1rule(P_IN)}")
-print(f"Result: {day2rule(P_IN)}")
+result1 = part1rule(P_IN)
+result2 = part2rule(P_IN)
+
+print(f"Result: {result1}")
+print(f"Result: {result2}")
