@@ -3,7 +3,6 @@ with open('input.txt') as f:
 # with open("test.txt") as f:
     p_in = f.read()
 
-
 # %% Part 1
 pos = {'hor_pos': 0, 'depth': 0}
 commands = [command_line.split() for command_line in p_in.splitlines()]
