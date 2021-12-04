@@ -20,7 +20,7 @@ def parse_input(p_in: str) -> (list, np.array):
     return picked_nos, boards
 
 
-def find_winning_boards(picked_nos: list, boards: np.array) -> (np.array, int):
+def find_winning_boards(picked_nos: list, boards: np.array) -> list:
     appeared_mask = np.zeros(boards.shape, dtype=bool)
     winner_boards = []
 
