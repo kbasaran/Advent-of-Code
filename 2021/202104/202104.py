@@ -4,7 +4,9 @@ with open('input.txt') as f:
     p_in = f.read()
 
 import numpy as np
+from time import perf_counter
 
+start_time = perf_counter()
 
 def parse_input(p_in: str) -> (list, np.array):
     picked_nos_str, *boards_str_list = p_in.split("\n\n")
@@ -55,3 +57,5 @@ def part2():
 
 part1()
 part2()
+
+print(f"\nSolved in {(perf_counter() - start_time) * 1000:.1f} ms.")
