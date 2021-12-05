@@ -4,13 +4,10 @@ with open('input.txt') as f:
     p_in = f.read()
 
 from time import perf_counter
-from collections import namedtuple
 import numpy as np
 import matplotlib.pyplot as plt
 
 start_time = perf_counter()
-
-Line = namedtuple('cloudline', ['start', 'end'])
 
 
 class Line():
