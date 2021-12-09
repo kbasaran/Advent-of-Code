@@ -1,6 +1,6 @@
 # %% Take input
-with open('input.txt') as f:
-# with open("test.txt") as f:
+# with open('input.txt') as f:
+with open("test.txt") as f:
     p_in = f.read()
 
 from time import perf_counter
@@ -11,46 +11,41 @@ start_time = perf_counter()
 
 class Display():
 
-    len_of_number = {0: 6,
-                     1: 2,
-                     2: 5,
-                     3: 5,
-                     4: 4,
-                     5: 5,
-                     6: 6,
-                     7: 3,
-                     8: 7,
-                     9: 6,
-                     }
+    number_codes = {0: "abcefg",
+                    1: "cf",
+                    2: "acdeg",
+                    3: "acdfg",
+                    4: "bcdf",
+                    5: "abdfg",
+                    6: "abdefg",
+                    7: "acf",
+                    8: "abcdefg",
+                    9: "abcdfg",
+                    }
 
     letters = [val for val in "abcdefg"]
-    signal_outs = ["s-" + letter for letter in letters]
-    display_segments = ["d-" + letter for letter in letters]
     numbers = list(range(10))
 
     def __init__(self):
-        self.table = pd.DataFrame(index=[*self.display_segments, *self.signal_outs],
-                                  columns=[*self.letters, *self.numbers],
+        self.table = pd.DataFrame(index=self.letters,
+                                  columns=self.letters,
                                   dtype=str,
                                   )
+        self.len_of_number = {number: len(self.number_codes[number]) for number in self.number_codes.keys()}
         self.display_combos = []
 
-    def add_display_combo(self, combo):
-        # check lengths
-        for number in self.len_of_number.keys():
-            if len(combo) == self.len_of_number[number]:
-                letters_connected = ["d-" + letter for letter in combo]
-                self.table[number].loc[letters_connected] = "X"
-                if list(self.len_of_number.values()).count(len(combo)) == 1:
-                    for letter in self.letters:
-                        if letter not in combo:
-                            self.table[number].loc["d-" + letter] = "."
+    def add_combo(self, combo):
+        length = len(combo)
+        numbers_with_same_length = [number for number in self.number_codes.keys() if len(self.number_codes[number]) == length]
+        segments_of_these_numbers = sorted(set("".join([self.number_codes[number] for number in numbers_with_same_length])))
+        segments_not_used_by_these_numbers = set([val for val in self.letters if val not in segments_of_these_numbers])
+
         sorted_combo = "".join(sorted(combo))
         self.display_combos.append(sorted_combo)
 
-    def add_display_combos(self, combos):
+    def add_combos(self, combos):
         for combo in combos:
-            self.add_display_combo(combo)
+            self.add_combo(combo)
 
     def count_1478(self):
         counter = 0
@@ -59,6 +54,12 @@ class Display():
                 counter += 1
         return counter
 
+def test():
+    pattern = "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+    display = Display()
+    display.add_combos(pattern.split()[:10])
+
+test()
 
 def part_1(p_in):
     counter_1478 = 0
@@ -70,7 +71,7 @@ def part_1(p_in):
     print(f"\n--Part 1--\nAnswer: {counter_1478}")
 
 
-part_1(p_in)
+# part_1(p_in)
 
 
 
