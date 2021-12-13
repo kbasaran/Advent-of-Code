@@ -93,3 +93,8 @@ prod_max_3 = np.product(sorted(basin_sizes)[-3:])
 print(f"\nAnswer: {prod_max_3}")
 
 print(f"\nSolved in {(perf_counter() - start_time) * 1000:.1f} ms.")
+
+import matplotlib.pyplot as plt
+plt.rcParams["figure.dpi"] = 150
+plt.title("202109 Ocean floor\n(dark is deep)")
+plt.imshow(floor)
