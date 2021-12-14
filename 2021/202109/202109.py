@@ -50,7 +50,7 @@ part_1(floor)
 
 print("\n--Part 2--")
 
-floor = 9 - floor
+floor = 9 - floor  # high values are deep
 floor_sparse = sparse.dok_matrix(floor)
 
 basins = []  # key is first item found, values are the coordinates in it
@@ -93,3 +93,15 @@ prod_max_3 = np.product(sorted(basin_sizes)[-3:])
 print(f"\nAnswer: {prod_max_3}")
 
 print(f"\nSolved in {(perf_counter() - start_time) * 1000:.1f} ms.")
+
+
+def make_vis(floor, basins):
+    import matplotlib.pyplot as plt
+    new_floor = np.array(9 - floor)
+    basins_by_size = {len(basin["coords"]): basin for basin in basins}
+    biggest_basin = basins_by_size[max(basins_by_size.keys())]
+    for coord in biggest_basin["coords"]:
+        new_floor[coord] = new_floor[coord] * 3 + 20
+    plt.rcParams["figure.dpi"] = 150
+    plt.title("202109\n(dark is deep)")
+    plt.imshow(new_floor)
