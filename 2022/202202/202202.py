@@ -18,27 +18,27 @@ def convert_letters_to_coords(row_text):
     return row_no, col_no
 
 
+def process_strategy_guide(p_in, score_matrix):
+    tot_score = 0
+    for row_text in p_in.splitlines():
+        tot_score += score_matrix[convert_letters_to_coords(row_text)]
+    print(tot_score)
+
+
 # rows are opponent's hand, columns are your
 win_mat = np.matrix([[3, 6, 0],
                      [0, 3, 6],
                      [6, 0, 3],
                      ]) + np.matrix([1, 2, 3]).repeat(3, axis=0)
 
-tot_score = 0
-for row_text in p_in.splitlines():
-    tot_score += win_mat[convert_letters_to_coords(row_text)]
-print(tot_score)
+process_strategy_guide(p_in, win_mat)
 
 # Part 2
-score_mat = np.matrix([[3, 1, 2],
-                       [1, 2, 3],
-                       [2, 3, 1],
-                       ]) + np.matrix([0, 3, 6]).repeat(3, axis=0)
+p2_mat = np.matrix([[3, 1, 2],
+                    [1, 2, 3],
+                    [2, 3, 1],
+                    ]) + np.matrix([0, 3, 6]).repeat(3, axis=0)
 
-tot_score = 0
-for row_text in p_in.splitlines():
-    tot_score += score_mat[convert_letters_to_coords(row_text)]
-print(tot_score)
-
+process_strategy_guide(p_in, p2_mat)
 
 print(f"\nSolved in {(perf_counter() - start_time) * 1000:.1f} ms.")
