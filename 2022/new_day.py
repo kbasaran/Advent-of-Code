@@ -34,8 +34,8 @@ def check_if_in_a_year_folder():
 
 def make_folder(day):
     cwd = os.getcwd()
-    folder_year = int(os.path.basename(cwd))
-    folder_name = str(folder_year) + str(day).zfill(2)
+    year = int(os.path.basename(cwd))
+    folder_name = str(year) + str(day).zfill(2)
     if not os.path.exists(folder_name):
         os.mkdir(folder_name)
     file_name = folder_name + ".py"
@@ -43,9 +43,10 @@ def make_folder(day):
 
     if not os.path.exists(file_path):
         with open(file_path, "w") as f:
-            f.write("""# %% Take input
-with open('input.txt') as f:
-# with open("test.txt") as f:
+            f.write(f"# {year} Day {str(day).zfill(2)}"
+"""\n# Take input
+# with open('input.txt') as f:
+with open("test.txt") as f:
     p_in = f.read()
 
 from time import perf_counter
