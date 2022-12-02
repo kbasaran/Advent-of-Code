@@ -6,11 +6,13 @@ with open('input.txt') as f:
 
 from time import perf_counter
 import numpy as np
+from functools import lru_cache
 
 start_time = perf_counter()
 
 
 # Part 1
+@lru_cache
 def convert_letters_to_coords(row_text):
     l1, l2 = row_text.split(" ")
     row_no = "ABC".find(l1)
