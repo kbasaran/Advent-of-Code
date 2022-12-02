@@ -9,13 +9,8 @@ import numpy as np
 
 start_time = perf_counter()
 
-# rows are opponent's hand, columns are your
-win_mat = np.matrix([[3, 6, 0],
-                     [0, 3, 6],
-                     [6, 0, 3],
-                     ]) + np.matrix([1, 2, 3]).repeat(3, axis=0)
 
-
+# Part 1
 def convert_letters_to_coords(row_text):
     l1, l2 = row_text.split(" ")
     row_no = "ABC".find(l1)
@@ -23,7 +18,12 @@ def convert_letters_to_coords(row_text):
     return row_no, col_no
 
 
-# Part 1
+# rows are opponent's hand, columns are your
+win_mat = np.matrix([[3, 6, 0],
+                     [0, 3, 6],
+                     [6, 0, 3],
+                     ]) + np.matrix([1, 2, 3]).repeat(3, axis=0)
+
 tot_score = 0
 for row_text in p_in.splitlines():
     tot_score += win_mat[convert_letters_to_coords(row_text)]
