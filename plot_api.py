@@ -56,7 +56,7 @@ for i, ax in enumerate(axs):
     y2 = list(member_data[2].values())
     x = list(member_data[1].keys())
     x_max = max(x_max, *x)
-    ax.bar(x, y1, edgecolor=[0, 0, 0, 0.5], color=[0, 0, 0, 0.1])
+    ax.bar(x, y1, edgecolor=[0.5, 0.5, 0.5], color=[0, 0, 0, 0.1])
     ax.bar(x, y2, bottom=y1, edgecolor="k")
     ax.set_ylabel("Hour")
 
