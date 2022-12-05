@@ -9,9 +9,9 @@ from time import perf_counter
 
 start_time = perf_counter()
 
-def parse_start_stacks(stacks_text: str):
+def parse_start_stacks(stacks_text: str) -> dict:
     lines = stacks_text.splitlines()[::-1]
-    n_stacks = max([int(val) for val in lines[0].replace(" ", "")])
+    n_stacks = max([int(val) for val in lines[0].split()])
     stacks = {i: [] for i in range(1, n_stacks + 1)}
     for line in lines[1:]:
         for i_stack, stack in stacks.items():
@@ -20,16 +20,19 @@ def parse_start_stacks(stacks_text: str):
                 stack.append(letter)
     return stacks
 
-def parse_movement_commands(commands_text: str):
+def parse_movement_commands(commands_text: str) -> list:
     commands = []
     for line in commands_text.splitlines():
-        n_crate = int(line.split()[1])
-        fro_stack = int(line.split()[-3])
-        to_stack = int(line.split()[-1])
+        n_crate, fro_stack, to_stack = [int(val) for val in line.split()[1::2]]
         commands.append((n_crate, fro_stack, to_stack))
     return commands
 
-def crane_operation(stacks, n_crate, from_stack, to_stack, crane_version=9000):
+def crane_operation(stacks: dict,
+                    n_crate: int,
+                    from_stack: int,
+                    to_stack: int,
+                    crane_version: int=9000,
+                    ) -> dict:
     moving = stacks[from_stack][-n_crate:]
     del stacks[from_stack][-n_crate:]
     if crane_version == 9000:
@@ -37,7 +40,7 @@ def crane_operation(stacks, n_crate, from_stack, to_stack, crane_version=9000):
     elif crane_version == 9001:
         stacks[to_stack] += moving
     else:
-        raise TypeError("Unrecognized crane version.")
+        raise ValueError("Unrecognized crane version.")
 
 
 if __name__ == "__main__":
