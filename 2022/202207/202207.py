@@ -1,48 +1,74 @@
 # 2022 Day 07
 
 # Receive input
-# with open('input.txt') as f:
-with open("test.txt") as f:
+with open('input.txt') as f:
+# with open("test.txt") as f:
     p_in = f.read()
 
 from time import perf_counter
-from anytree import NodeMixin, RenderTree
+from anytree import Node, RenderTree
+import numpy as np
 
 start_time = perf_counter()
 
-class folder(NodeMixin):
-    def __init__(self, name, files=None, parent=None, children=None):
-        super(folder, self).__init__()
-        self.name = name
 
-        self.files = {}
-        if files:
-            self.add_files(files)
+def create_tree(p_in):
+    root = Node(name="root")
+    cwd = root
+    for line in p_in.splitlines():
+        parts = line.split()
 
-        self.parent = parent
+        # ls listing. create files and folders here.
+        if "".join(parts[:2]) == "$ls":
+            ls_listing = True
+            continue
+        elif parts[0] == "$":
+            ls_listing = False
 
-        if children:
-            self.children = children
+        if ls_listing:
+            if parts[0] == "dir":
+                new_child = Node(name=parts[1], parent=cwd)
+                # this will give an error if same folder is ls'd twice
+                new_child.files = {}
+            else:
+                cwd.files[parts[1]] = int(parts[0])
 
-    def add_files(self, files: list):
-        for file_name, size in files:
-            assert isinstance(file_name, str)
-            assert isinstance(size, int)
-            self.files[file_name] = size
+        # change directory
+        elif "".join(parts[:2]) == "$cd":
+            cd_dir = parts[2]
 
-    def get_files(self):
-        return self.files
+            if cd_dir == "/":
+                cwd = root
+                root.files = {}
+
+            elif cd_dir == "..":
+                cwd = cwd.parent
+
+            else:
+                for child in cwd.children:
+                    if child.name == cd_dir:
+                        cwd = child
+                if cwd.name != cd_dir:
+                    raise ValueError(f"cd to {cd_dir} failed", cwd)
+
+        else:
+            raise ValueError(f"Don't know what to do with this line: {line}")
+    return root
 
 
-root = folder(name="/")
-nodes = []
-nodes.append(folder(name="man", parent=root))
-nodes[0].add_files([("a", 10), ("b", 20)])
-print([children.get_files().values() for children in root.children])
+def find_total_size(folder):
+    return sum([sum(node.files.values()) for node in (*folder.descendants, folder)])
 
 
-# how to access the folder instance based on the path name given by the another instance
+if __name__ == "__main__":
+    root = create_tree(p_in)
+    # print(RenderTree(root))
+    dir_sizes = np.array([find_total_size(folder) for folder in (root, *root.descendants)])
 
+    print(sum(dir_sizes[dir_sizes < 100_000]))  # Part 1
+
+    cur_free_space = 70_000_000 - find_total_size(root)
+    print(min(dir_sizes[dir_sizes >= (30_000_000 - cur_free_space)]))  # Part 2
 
 
 print(f"\nSolved in {(perf_counter() - start_time) * 1000:.3g} ms.")
