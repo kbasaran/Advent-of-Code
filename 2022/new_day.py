@@ -44,7 +44,7 @@ def make_folder(day):
     if not os.path.exists(file_path):
         with open(file_path, "w") as f:
             f.write(f"# {year} Day {str(day).zfill(2)}"
-"""\n# Take input
+"""\n\n# Receive input
 # with open('input.txt') as f:
 with open("test.txt") as f:
     p_in = f.read()
@@ -57,7 +57,7 @@ start_time = perf_counter()
 
 
 
-print(f"\\nSolved in {(perf_counter() - start_time) * 1000:.1f} ms.")
+print(f"\\nSolved in {(perf_counter() - start_time) * 1000:.3g} ms.")
 """
                     )
             print(f"Created file: {file_name}")
