@@ -57,7 +57,7 @@ start_time = perf_counter()
 
 
 
-print(f"\\nSolved in {(perf_counter() - start_time) * 1000:.1f} ms.")
+print(f"\\nSolved in {(perf_counter() - start_time) * 1000:.3g} ms.")
 """
                     )
             print(f"Created file: {file_name}")
