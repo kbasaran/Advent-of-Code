@@ -37,8 +37,8 @@ for i, row in df.iterrows():
 
 
 # First method
-width = 6 + max([len(data[1]) for data in member_plot_data.values()]) / 4
-height = 1 + 3 * len(member_plot_data)
+width = 4 + max([len(data[1]) for data in member_plot_data.values()]) / 4
+height = 1 + 2 * len(member_plot_data)
 plt.rcParams["figure.figsize"] = [width, height]
 
 fig, axs = plt.subplots(len(member_plot_data), sharex=True)
@@ -66,41 +66,41 @@ fig.tight_layout()
 plt.show()
 
 
-# # Second method
-# width = 6 + max([len(data[1]) for data in member_plot_data.values()])
-# height = 8
-# plt.rcParams["figure.figsize"] = [width, height]
+# Second method
+width = 6 + max([len(data[1]) for data in member_plot_data.values()])
+height = 8
+plt.rcParams["figure.figsize"] = [width, height]
 
-# ax = plt.subplot()
-# ax.set_title(f"----AoC Year {df.iloc[0, :].event}----")
+ax = plt.subplot()
+ax.set_title(f"----AoC Year {df.iloc[0, :].event}----")
 
-# x_max = 0
-# n_members = len(member_plot_data.keys())
-# width = 0.7 / n_members
-# for i, member_name in enumerate(member_plot_data.keys()):
-#     member_data = member_plot_data[member_name]
-#     y1 = list(member_data[1].values())
-#     y2 = list(member_data[2].values())
-#     x = list(member_data[1].keys())
-#     x_label_center_locs = np.arange(len(x)) + 1
-#     x_max = max(x_max, *x)
-#     ax.bar(x_label_center_locs - width / 2 * (n_members - 1) + i * width,
-#            y1,
-#            width,
-#            edgecolor=[0, 0, 0, 0.5],
-#            color=[0, 0, 0, 0.1],
-#            )
-#     ax.bar(x_label_center_locs - width / 2 * (n_members - 1) + i * width,
-#            y2,
-#            width,
-#            bottom=y1,
-#            label=member_name,
-#            edgecolor="k",
-#            )
+x_max = 0
+n_members = len(member_plot_data.keys())
+width = 0.7 / n_members
+for i, member_name in enumerate(member_plot_data.keys()):
+    member_data = member_plot_data[member_name]
+    y1 = list(member_data[1].values())
+    y2 = list(member_data[2].values())
+    x = list(member_data[1].keys())
+    x_label_center_locs = np.arange(len(x)) + 1
+    x_max = max(x_max, *x)
+    ax.bar(x_label_center_locs - width / 2 * (n_members - 1) + i * width,
+            y1,
+            width,
+            edgecolor=[0, 0, 0, 0.5],
+            color=[0, 0, 0, 0.1],
+            )
+    ax.bar(x_label_center_locs - width / 2 * (n_members - 1) + i * width,
+            y2,
+            width,
+            bottom=y1,
+            label=member_name,
+            edgecolor="k",
+            )
 
-# ax.set_ylabel("Hour")
-# ax.set_xlabel("Day")
-# ax.set_ylim([0, 24])
-# ax.grid()
-# ax.legend()
-# plt.xticks(list(range(1, x_max+1)))
+ax.set_ylabel("Hour")
+ax.set_xlabel("Day")
+ax.set_ylim([0, 24])
+ax.grid()
+ax.legend()
+plt.xticks(list(range(1, x_max+1)))
