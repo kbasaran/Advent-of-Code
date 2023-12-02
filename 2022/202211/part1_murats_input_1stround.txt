@@ -1,0 +1,285 @@
+Monkey 0 end of inspection with operation old * 17
+Item 99 became 561
+Send to monkey 4
+
+Monkey 0 end of inspection with operation old * 17
+Item 67 became 379
+Send to monkey 2
+
+Monkey 0 end of inspection with operation old * 17
+Item 92 became 521
+Send to monkey 2
+
+Monkey 0 end of inspection with operation old * 17
+Item 61 became 345
+Send to monkey 4
+
+Monkey 0 end of inspection with operation old * 17
+Item 83 became 470
+Send to monkey 2
+
+Monkey 0 end of inspection with operation old * 17
+Item 64 became 362
+Send to monkey 2
+
+Monkey 0 end of inspection with operation old * 17
+Item 98 became 555
+Send to monkey 4
+
+Monkey 1 end of inspection with operation old * 11
+Item 78 became 286
+Send to monkey 5
+
+Monkey 1 end of inspection with operation old * 11
+Item 74 became 271
+Send to monkey 5
+
+Monkey 1 end of inspection with operation old * 11
+Item 88 became 322
+Send to monkey 5
+
+Monkey 1 end of inspection with operation old * 11
+Item 89 became 326
+Send to monkey 5
+
+Monkey 1 end of inspection with operation old * 11
+Item 50 became 183
+Send to monkey 5
+
+Monkey 2 end of inspection with operation old + 4
+Item 362 became 122
+Send to monkey 6
+
+Monkey 2 end of inspection with operation old + 4
+Item 470 became 158
+Send to monkey 6
+
+Monkey 2 end of inspection with operation old + 4
+Item 521 became 175
+Send to monkey 4
+
+Monkey 2 end of inspection with operation old + 4
+Item 379 became 127
+Send to monkey 4
+
+Monkey 2 end of inspection with operation old + 4
+Item 98 became 34
+Send to monkey 6
+
+Monkey 2 end of inspection with operation old + 4
+Item 91 became 31
+Send to monkey 4
+
+Monkey 3 end of inspection with operation old * old
+Item 59 became 1160
+Send to monkey 5
+
+Monkey 3 end of inspection with operation old * old
+Item 72 became 1728
+Send to monkey 5
+
+Monkey 3 end of inspection with operation old * old
+Item 94 became 2945
+Send to monkey 5
+
+Monkey 3 end of inspection with operation old * old
+Item 91 became 2760
+Send to monkey 5
+
+Monkey 3 end of inspection with operation old * old
+Item 79 became 2080
+Send to monkey 0
+
+Monkey 3 end of inspection with operation old * old
+Item 88 became 2581
+Send to monkey 5
+
+Monkey 3 end of inspection with operation old * old
+Item 94 became 2945
+Send to monkey 5
+
+Monkey 3 end of inspection with operation old * old
+Item 51 became 867
+Send to monkey 5
+
+Monkey 4 end of inspection with operation old + 7
+Item 31 became 12
+Send to monkey 6
+
+Monkey 4 end of inspection with operation old + 7
+Item 127 became 44
+Send to monkey 7
+
+Monkey 4 end of inspection with operation old + 7
+Item 175 became 60
+Send to monkey 6
+
+Monkey 4 end of inspection with operation old + 7
+Item 555 became 187
+Send to monkey 7
+
+Monkey 4 end of inspection with operation old + 7
+Item 345 became 117
+Send to monkey 6
+
+Monkey 4 end of inspection with operation old + 7
+Item 561 became 189
+Send to monkey 6
+
+Monkey 4 end of inspection with operation old + 7
+Item 95 became 34
+Send to monkey 6
+
+Monkey 4 end of inspection with operation old + 7
+Item 72 became 26
+Send to monkey 6
+
+Monkey 4 end of inspection with operation old + 7
+Item 78 became 28
+Send to monkey 6
+
+Monkey 5 end of inspection with operation old + 8
+Item 867 became 291
+Send to monkey 2
+
+Monkey 5 end of inspection with operation old + 8
+Item 2945 became 984
+Send to monkey 2
+
+Monkey 5 end of inspection with operation old + 8
+Item 2581 became 863
+Send to monkey 2
+
+Monkey 5 end of inspection with operation old + 8
+Item 2760 became 922
+Send to monkey 2
+
+Monkey 5 end of inspection with operation old + 8
+Item 2945 became 984
+Send to monkey 2
+
+Monkey 5 end of inspection with operation old + 8
+Item 1728 became 578
+Send to monkey 0
+
+Monkey 5 end of inspection with operation old + 8
+Item 1160 became 389
+Send to monkey 2
+
+Monkey 5 end of inspection with operation old + 8
+Item 183 became 63
+Send to monkey 2
+
+Monkey 5 end of inspection with operation old + 8
+Item 326 became 111
+Send to monkey 2
+
+Monkey 5 end of inspection with operation old + 8
+Item 322 became 110
+Send to monkey 2
+
+Monkey 5 end of inspection with operation old + 8
+Item 271 became 93
+Send to monkey 2
+
+Monkey 5 end of inspection with operation old + 8
+Item 286 became 98
+Send to monkey 2
+
+Monkey 5 end of inspection with operation old + 8
+Item 76 became 28
+Send to monkey 2
+
+Monkey 6 end of inspection with operation old + 5
+Item 28 became 11
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 26 became 10
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 34 became 13
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 189 became 64
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 117 became 40
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 60 became 21
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 12 became 5
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 34 became 13
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 158 became 54
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 122 became 42
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 69 became 24
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 60 became 21
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 53 became 19
+Send to monkey 7
+
+Monkey 6 end of inspection with operation old + 5
+Item 89 became 31
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 71 became 25
+Send to monkey 1
+
+Monkey 6 end of inspection with operation old + 5
+Item 88 became 31
+Send to monkey 1
+
+Monkey 7 end of inspection with operation old + 3
+Item 19 became 7
+Send to monkey 1
+
+Monkey 7 end of inspection with operation old + 3
+Item 187 became 63
+Send to monkey 1
+
+Monkey 7 end of inspection with operation old + 3
+Item 44 became 15
+Send to monkey 3
+
+Monkey 7 end of inspection with operation old + 3
+Item 72 became 25
+Send to monkey 3
+
+Monkey 7 end of inspection with operation old + 3
+Item 54 became 19
+Send to monkey 3
+
+Monkey 7 end of inspection with operation old + 3
+Item 63 became 22
+Send to monkey 3
+
+Monkey 7 end of inspection with operation old + 3
+Item 80 became 27
+Send to monkey 3
+208
+[7, 5, 6, 8, 9, 13, 16, 7]
