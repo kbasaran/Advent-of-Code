@@ -53,11 +53,11 @@ from time import perf_counter
 
 start_time = perf_counter()
 
-# Code here
+# ---- Part 1
 
 
 
-print(f"\\nSolved in {(perf_counter() - start_time) * 1000:.3g} ms.")
+print(f"Solved in {(perf_counter() - start_time) * 1000:.3g} ms.\\n")
 """
                     )
             print(f"Created file: {file_name}")
