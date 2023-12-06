@@ -1,8 +1,8 @@
 # 2023 Day 05
 
 # Receive input
-# with open('input.txt') as f:
-with open("test.txt") as f:
+with open('input.txt') as f:
+# with open("test.txt") as f:
     p_in = f.read()
 
 from time import perf_counter
@@ -66,47 +66,73 @@ def build_start_vector(seeds):
     columns = ["source_start", "source_end", "diff", "dest_start", "dest_end"]
     df = pd.DataFrame(columns=columns, dtype=int)
     for i in range(len(seeds) // 2):
-        row_data = [seeds[i], seeds[i] + seeds[i+1], 0]
+        row_data = [seeds[i*2], seeds[i*2] + seeds[i*2+1] - 1, 0]
         df.loc[len(df)] = add_destination_values(row_data)
     return df
 
 df = build_start_vector(seeds)
-print(df)
+
 for map_definition in maps:
+    # print("\n\n-------------New map---------------")
+    # print(df)
     df = df.sort_values(by="source_start")
-    for source_start, source_end, diff in map_definition.source_destination_diff:
-        for i in df.index:
-            if source_start == 77 and i == 7:
-                pass
-            old_row = df.loc[i, :].copy()  # take a copy of row to temp. variable
-            # df.drop(i, inplace=True) # remove the row from df
-            if (source_end > old_row["dest_start"]) & (source_start < old_row["dest_end"]):
-                # these are all the rows where the existing vector in df has some overlap with the new vector definition in map
-                
-                # add the section with full overlap of existing vector and new vector definition
-                overlap = [max(old_row["dest_start"], source_start), min(old_row["dest_end"], source_end), diff]
-                df.loc[i] = add_destination_values(overlap)  # replace old row
-                
-                # add the section where existing vector starts earlier and needs to project the first section with no diff
-                if old_row["dest_start"] < source_start:
-                    lower_section = [old_row["dest_start"], source_start, 0]
-                    df.loc[len(df)] = add_destination_values(lower_section)
-                
-                # add the section where existing vector ends later and needs to project that remaining section with no diff
-                if old_row["dest_end"] > source_end:
-                    upper_section = [source_end, old_row["dest_end"], 0]
-                    df.loc[len(df)] = add_destination_values(upper_section)
-                
+    df_next = pd.DataFrame(columns=df.columns)
+    for index, old_row in df.iterrows():
+        row = pd.DataFrame(columns=df.columns)
+        row.loc[0] = old_row.copy()
+        # print("---------New line--------")
+        # print(old_row)
+        # print()
 
-                
-            else:
-                # just move over the range as it is
-                same_section = [old_row["dest_start"], old_row["dest_end"], 0]
-                df.loc[i] = add_destination_values(same_section)  # replace old row
+        while len(row) > 0:
+            starting_rows = len(row)
+            print(row.index)
+            i = row.index[0]
+            row_source_start, row_source_end, row_diff, row_dest_start, row_dest_end = row.loc[i]
+            # changed = False
 
-        print("\n\n")
-        print(source_start, source_end, diff)
-        print(df)
+            overlapped=False
+            for map_source_start, map_source_end, map_diff in sorted(map_definition.source_destination_diff, key=lambda x: x[0]+x[2]):
+                # print("Map data: ", map_source_start, map_source_end, map_diff)
+
+                if (map_source_end > row_dest_start) & (map_source_start < row_dest_end):
+                    overlapped=True
+                    # these are all the rows where the existing vector in df has some overlap with the new vector definition in map
+                    # move them to new dataframe
+
+                    # add the section with full overlap of existing vector and new vector definition
+                    start = max(row_dest_start, map_source_start) - row_diff
+                    end = min(row_dest_end, map_source_end) - row_diff
+                    overlap = [start, end, row_diff + map_diff]
+                    df_next.loc[len(df_next)] = add_destination_values(overlap)  # replace old row
+
+                    # add the section where existing vector starts earlier and needs to project the first section with no diff
+                    if row_dest_start < map_source_start:
+                        start = row_dest_start - row_diff
+                        end = map_source_start - row_diff
+                        lower_section = [start, end, row_diff]
+                        row.loc[max(row.index)+1] = add_destination_values(lower_section)
+
+                    # add the section where existing vector ends later and needs to project that remaining section with no diff
+                    if row_dest_end > map_source_end:
+                        start = map_source_end - row_diff
+                        end = row_dest_end - row_diff
+                        upper_section = [start, end, row_diff]
+                        row.loc[max(row.index)+1] = add_destination_values(upper_section)
+
+                    row = row.drop(i)
+                    break
+
+            if not overlapped:
+                df_next = pd.concat([df_next, row])
+                break
+
+            # print(df)
+            # print(df_next)
+            # print()
+
+
+    df = df_next
 
 
 print("\n\nResult:")
