@@ -77,15 +77,15 @@ for map_section in maps:
     # print(df)
     df_next = pd.DataFrame(columns=df.columns)
     for index, vector in df.iterrows():
-        vector_segments = pd.DataFrame(columns=df.columns)
-        vector_segments.loc[0] = vector.copy()
+        vector_segments = []
+        vector_segments.append(vector.copy())
         # print("\n---------New line--------")
         # print(vector)
         # print()
 
         while len(vector_segments) > 0:
-            i = vector_segments.index[0]
-            row_source_start, row_source_end, row_diff, row_dest_start, row_dest_end = vector_segments.loc[i]
+            # i = vector_segments.index[0]
+            row_source_start, row_source_end, row_diff, row_dest_start, row_dest_end = vector_segments[0]
 
             overlapped=False
             for map_source_start, map_source_end, map_diff in map_section.source_destination_diff:
@@ -101,28 +101,30 @@ for map_section in maps:
                     end = min(row_dest_end, map_source_end) - row_diff
                     overlap = [start, end, row_diff + map_diff]
                     df_next.loc[len(df_next)] = add_destination_values(overlap)
-                    vector_segments = vector_segments.drop(i)
+                    vector_segments.pop(0)  # = vector_segments.drop(i)
 
                     # add the section where existing vector starts earlier and needs to project the first section with no diff
                     if row_dest_start < map_source_start:
                         start = row_dest_start - row_diff
                         end = map_source_start - row_diff
                         lower_section = [start, end, row_diff]
-                        lower_section_df = pd.DataFrame([add_destination_values(lower_section)], columns=vector_segments.columns)
-                        vector_segments = pd.concat([vector_segments, lower_section_df], ignore_index=True)
+                        vector_segments.append(add_destination_values(lower_section))
 
                     # add the section where existing vector ends later and needs to project that remaining section with no diff
                     if row_dest_end > map_source_end:
                         start = map_source_end - row_diff
                         end = row_dest_end - row_diff
                         upper_section = [start, end, row_diff]
-                        upper_section_df = pd.DataFrame([add_destination_values(upper_section)], columns=vector_segments.columns)
-                        vector_segments = pd.concat([vector_segments, upper_section_df], ignore_index=True)
+                        vector_segments.append(add_destination_values(upper_section))
 
                     break
 
             if not overlapped:
-                df_next = pd.concat([df_next, vector_segments])
+                df_next.reset_index(inplace=True, drop=True)
+                for vector_segment in vector_segments:
+                    df_next.loc[len(df_next)] = vector_segment
+                # vector_segments_df = pd.DataFrame()
+                # df_next = pd.concat([df_next, vector_segments])
                 break
 
             # print(df)
