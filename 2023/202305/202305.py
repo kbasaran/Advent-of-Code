@@ -34,9 +34,9 @@ def get_maps(p_in):
 
 def get_columns(maps):
     columns = set()
-    for map_definition in maps:
-        columns.add(map_definition.source)
-        columns.add(map_definition.destination)
+    for map_section in maps:
+        columns.add(map_section.source)
+        columns.add(map_section.destination)
     return list(columns)
 
 def create_df(seeds, maps):
@@ -45,10 +45,10 @@ def create_df(seeds, maps):
     return df
 
 def process_maps(df, maps):
-    for map_definition in maps:
-        df[map_definition.destination] = df[map_definition.source]
-        for source_start, source_end, diff in map_definition.source_destination_diff:
-            df.loc[(df[map_definition.source] >= source_start) & (df[map_definition.source] < source_end), map_definition.destination] += diff
+    for map_section in maps:
+        df[map_section.destination] = df[map_section.source]
+        for source_start, source_end, diff in map_section.source_destination_diff:
+            df.loc[(df[map_section.source] >= source_start) & (df[map_section.source] < source_end), map_section.destination] += diff
     return df
 
 seeds = get_seeds(p_in)
@@ -72,69 +72,65 @@ def build_start_vector(seeds):
 
 df = build_start_vector(seeds)
 
-for map_definition in maps:
+for map_section in maps:
     # print("\n\n-------------New map---------------")
     # print(df)
-    df = df.sort_values(by="source_start")
     df_next = pd.DataFrame(columns=df.columns)
-    for index, old_row in df.iterrows():
-        row = pd.DataFrame(columns=df.columns)
-        row.loc[0] = old_row.copy()
-        # print("---------New line--------")
-        # print(old_row)
+    for index, vector in df.iterrows():
+        vector_segments = pd.DataFrame(columns=df.columns)
+        vector_segments.loc[0] = vector.copy()
+        # print("\n---------New line--------")
+        # print(vector)
         # print()
 
-        while len(row) > 0:
-            starting_rows = len(row)
-            print(row.index)
-            i = row.index[0]
-            row_source_start, row_source_end, row_diff, row_dest_start, row_dest_end = row.loc[i]
-            # changed = False
+        while len(vector_segments) > 0:
+            i = vector_segments.index[0]
+            row_source_start, row_source_end, row_diff, row_dest_start, row_dest_end = vector_segments.loc[i]
 
             overlapped=False
-            for map_source_start, map_source_end, map_diff in sorted(map_definition.source_destination_diff, key=lambda x: x[0]+x[2]):
-                # print("Map data: ", map_source_start, map_source_end, map_diff)
-
+            for map_source_start, map_source_end, map_diff in map_section.source_destination_diff:
+                
                 if (map_source_end > row_dest_start) & (map_source_start < row_dest_end):
-                    overlapped=True
-                    # these are all the rows where the existing vector in df has some overlap with the new vector definition in map
+                    # existing vector has some overlap with the new vector definition in map
                     # move them to new dataframe
+                    # print("Map data: ", map_source_start, map_source_end, map_diff)
+                    overlapped=True
 
                     # add the section with full overlap of existing vector and new vector definition
                     start = max(row_dest_start, map_source_start) - row_diff
                     end = min(row_dest_end, map_source_end) - row_diff
                     overlap = [start, end, row_diff + map_diff]
-                    df_next.loc[len(df_next)] = add_destination_values(overlap)  # replace old row
+                    df_next.loc[len(df_next)] = add_destination_values(overlap)
+                    vector_segments = vector_segments.drop(i)
 
                     # add the section where existing vector starts earlier and needs to project the first section with no diff
                     if row_dest_start < map_source_start:
                         start = row_dest_start - row_diff
                         end = map_source_start - row_diff
                         lower_section = [start, end, row_diff]
-                        row.loc[max(row.index)+1] = add_destination_values(lower_section)
+                        lower_section_df = pd.DataFrame([add_destination_values(lower_section)], columns=vector_segments.columns)
+                        vector_segments = pd.concat([vector_segments, lower_section_df], ignore_index=True)
 
                     # add the section where existing vector ends later and needs to project that remaining section with no diff
                     if row_dest_end > map_source_end:
                         start = map_source_end - row_diff
                         end = row_dest_end - row_diff
                         upper_section = [start, end, row_diff]
-                        row.loc[max(row.index)+1] = add_destination_values(upper_section)
+                        upper_section_df = pd.DataFrame([add_destination_values(upper_section)], columns=vector_segments.columns)
+                        vector_segments = pd.concat([vector_segments, upper_section_df], ignore_index=True)
 
-                    row = row.drop(i)
                     break
 
             if not overlapped:
-                df_next = pd.concat([df_next, row])
+                df_next = pd.concat([df_next, vector_segments])
                 break
 
             # print(df)
             # print(df_next)
             # print()
 
-
     df = df_next
 
-
 print("\n\nResult:")
-print(df.sort_values(by="dest_start"))
+print(df.sort_values(by="dest_start").iloc[0])
 print(f"Solved in {(perf_counter() - start_time) * 1000:.3g} ms.\n")
