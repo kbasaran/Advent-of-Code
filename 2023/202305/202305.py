@@ -75,7 +75,7 @@ df = build_start_vector(seeds)
 for map_section in maps:
     # print("\n\n-------------New map---------------")
     # print(df)
-    df_next = pd.DataFrame(columns=df.columns)
+    df_next = []
     for index, vector in df.iterrows():
         vector_segments = []
         vector_segments.append(vector.copy())
@@ -100,7 +100,7 @@ for map_section in maps:
                     start = max(row_dest_start, map_source_start) - row_diff
                     end = min(row_dest_end, map_source_end) - row_diff
                     overlap = [start, end, row_diff + map_diff]
-                    df_next.loc[len(df_next)] = add_destination_values(overlap)
+                    df_next.append(add_destination_values(overlap))
                     vector_segments.pop(0)  # = vector_segments.drop(i)
 
                     # add the section where existing vector starts earlier and needs to project the first section with no diff
@@ -120,18 +120,16 @@ for map_section in maps:
                     break
 
             if not overlapped:
-                df_next.reset_index(inplace=True, drop=True)
-                for vector_segment in vector_segments:
-                    df_next.loc[len(df_next)] = vector_segment
-                # vector_segments_df = pd.DataFrame()
-                # df_next = pd.concat([df_next, vector_segments])
+                df_next = [*df_next, *vector_segments]
                 break
 
             # print(df)
             # print(df_next)
             # print()
 
-    df = df_next
+    df = pd.DataFrame(columns=df.columns)
+    for vector in df_next:
+        df.loc[len(df)] = vector
 
 print("\n\nResult:")
 print(df.sort_values(by="dest_start").iloc[0])
