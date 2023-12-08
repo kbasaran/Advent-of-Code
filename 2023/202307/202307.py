@@ -94,7 +94,7 @@ class Handj(Hand):
         self.bid = int(bid)
         self.card_counts = self.count_cards(cards)
         self.raw_value = self.calc_raw_value(cards)
-        self.score = self.calc_score(self.hand_counts_after_applying_jokers_in_best_way_possible())
+        self.score = self.calc_score(self.card_counts_after_applying_jokers_in_best_way_possible())
 
     def card_to_val(self, card):
         assert len(card) == 1
@@ -109,7 +109,7 @@ class Handj(Hand):
         else:
             return int(card)
 
-    def hand_counts_after_applying_jokers_in_best_way_possible(self):
+    def card_counts_after_applying_jokers_in_best_way_possible(self):
         if self.cards == "JJJJJ":
             return self.card_counts
         card_counts_no_joker = {key: val for key, val in self.card_counts.items() if key != "J"}
