@@ -1,8 +1,8 @@
 # 2023 Day 08
 
 # Receive input
-# with open('input.txt') as f:
-with open("test.txt") as f:
+with open('input.txt') as f:
+# with open("test.txt") as f:
     p_in = f.read()
 
 from time import perf_counter
@@ -59,10 +59,16 @@ def get_repeated_string(seed_string, start, end):
     if start > end:
         raise ValueError("Invalid range: start should be less than or equal to end")
 
-    repeated_string = seed_string * ((end - start) // len(seed_string) + 2)
-    result = repeated_string[start:end]
+    len_seed = len(seed_string)
+    reduce = start // len_seed
+    start -= len_seed * reduce
+    end -= len_seed * reduce
+    periods = end // len_seed + 1
+    raw = seed_string * periods
+    
+    return raw[start:end]
 
-    return result 
+get_repeated_string("abc", 30, 33)
 
 memory, directions = parse_input(p_in)
 
