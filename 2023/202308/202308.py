@@ -75,36 +75,35 @@ memory, directions = parse_input(p_in)
 pos, loc = 0, 0
 last_visited = [0]
 while True:
-    instruction = get_repeated_string(directions, pos, pos+MEMORY_DEPTH)
     solution_found = False
-    for instruction_length in reversed(range(1, len(instruction))):
+    for instruction_length in reversed(range(1, MEMORY_DEPTH)):
         start_loc = loc
-        instruction_chunk = instruction[:instruction_length]
-        print(f"Processing the last {instruction_chunk} part of {instruction}")
+        instruction_chunk = get_repeated_string(directions, pos, pos+instruction_length)
+        print(f"Attempting chunk {instruction_chunk}")
         instruction_as_number = convert_dir_to_number(instruction_chunk)
-        loc_in_memory = memory[loc, instruction_as_number]
-        if loc_in_memory == -1:
+        loc_new = memory[loc, instruction_as_number]
+        if loc_new == -1:
             continue
         else:
             # update to new position
-            loc = loc_in_memory
+            loc = loc_new
             pos += instruction_length
-            print(f"Found in memory. Moving to: {convert_number_to_loc(loc_in_memory)}\n")
+            print(f"Found in memory. Moving to: {convert_number_to_loc(loc_new)}\n")
 
             if loc == len(letters)**3 - 1:
                 solution_found = True
 
             # instruction that we used to reach here. can not be longer than memory_depth
-            max_known = len(last_visited)
-            max_instruction = get_repeated_string(directions, pos-max_known, pos)
-            max_instruction_as_number = convert_dir_to_number(max_instruction)
+            stored_steps_length = len(last_visited)
+            stored_steps_instruction = get_repeated_string(directions, pos-stored_steps_length, pos)
+            stored_steps_instruction_as_number = convert_dir_to_number(stored_steps_instruction)
             
             # update what we know
             filler = [-1] * instruction_length
-            last_visited.append(filler)
-            last_visited[-1] = loc
-            last_visited = last_visited[-MEMORY_DEPTH:]
-            memory[last_visited[0], max_instruction_as_number] = loc
+            last_visited.append(filler)  # jump steps as long as the instruction length
+            last_visited[-1] = loc  # add this new location
+            last_visited = last_visited[-MEMORY_DEPTH:]  # trim
+            memory[last_visited[0], stored_steps_instruction_as_number] = loc
     if solution_found:
         print(f"Finito! Position: {pos}")
         break
