@@ -44,16 +44,15 @@ def make_folder(day):
     if not os.path.exists(file_path):
         with open(file_path, "w") as f:
             f.write(f"# {year} Day {str(day).zfill(2)}"
-"""\n\n# Receive input
+"""\n\n# ---- Receive input
 # with open('input.txt') as f:
 with open("test.txt") as f:
     p_in = f.read()
 
 from time import perf_counter
 
-start_time = perf_counter()
-
 # ---- Part 1
+start_time = perf_counter()
 
 
 
