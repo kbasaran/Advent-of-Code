@@ -40,7 +40,6 @@ memory, directions = parse_input(p_in)
 pos, loc = 0, "AAA"
 while loc != "ZZZ":
     instruction = get_pos_from_repeated_string(directions, pos)
-    # print(f"Handling instruction {instruction}")
     loc = memory.at[instruction, loc]
     pos += 1
 
