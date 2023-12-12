@@ -55,6 +55,8 @@ print(f"Part 1:\n{furthest_pos}")
 print(f"Solved in {(perf_counter() - start_time) * 1000:.3g} ms.\n")
 
 # ---- Part 2
+start_time = perf_counter()
+
 def get_elements_of_loop(costs, start_pos, furthest_pos):
     dir1_next, dir2_next = [key[1] for key in costs[[furthest_pos], :].keys()]
 
