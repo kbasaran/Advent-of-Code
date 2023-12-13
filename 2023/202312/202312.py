@@ -6,7 +6,7 @@ with open("test.txt") as f:
     p_in = f.read()
 
 from time import perf_counter
-from itertools import product
+from itertools import product, combinations
 import numpy as np
 # from functools import lru_cache
 
@@ -60,6 +60,146 @@ print(f"Solved in {(perf_counter() - start_time) * 1000:.3g} ms.\n")
 
 # ---- Part 2
 # start_time = perf_counter()
+
+
+def count_possible_combinations_per_chunk(record_values, required_length):
+    counter = 0
+    for offset in range(len(record_values) - required_length + 1):
+        outside_range = record_values[np.r_[0:offset, offset+required_length:len(record_values)]]
+        if np.all(outside_range < 1):
+            counter += 1
+    return counter
+
+# count_possible_combinations_per_chunk(np.array([0,0,1,0,0,0]), 3)
+
+def possible_arrangements(record, amounts):
+    
+    record_as_list = list(record.replace("?", "0").replace(".", "1").replace("#", "2"))
+    record_arr = np.array(record_as_list, dtype=int) - 1   # -1 is the question marks
+    print(record_arr)
+    print()
+    split_indexes = dict()
+    new_possible_split_indexes = list()
+    for i in range(1, len(record_arr) - 1):
+        char_prev, char = record_arr[[i-1, i]]
+
+        # add existing split indexes
+        # start index of groups of dots are split locations
+        # e.g. ".", "..."
+        if char == 0 and char_prev != 0:
+                split_indexes[i] = set((i,))
+                j = 1
+                while i+j < len(record_arr) and record_arr[i + j] == 0:
+                    # if i + j == len(record_arr) - 1:  # these "."'s connect to the end of the record
+                        # split_indexes.pop(i)
+                    # else:
+                    split_indexes[i].add(i+j)
+                    j += 1
+
+        # if we need more split locations, which indexes may those be at
+        elif np.all(record_arr[i-1:i+2] == -1):
+                    new_possible_split_indexes.append(i)
+
+    # create combinations with added split points
+    # total amount of split points need to match the amount of lengths given by puzzle
+    n_missing_split_points = len(amounts) - len(split_indexes)
+    new_split_index_combinations = combinations(new_possible_split_indexes, n_missing_split_points)
+    split_index_combinations = []
+    for combo in new_split_index_combinations:
+        # make a list of all split indexes, including the start (-1) and end (len)
+        split_index_combo = sorted([-1, *split_indexes.keys(), *combo])
+        if np.all(np.diff(split_index_combo) > 1):
+            # sort out neighbouring split positions
+            split_index_combinations.append(split_index_combo)
+
+
+    # ---- Numpy
+
+    chunks = np.zeros((len(split_index_combinations), len(record_arr) + 2), dtype=int)
+    chunk_lengths = dict()
+
+    for ic, split_combo in enumerate(split_index_combinations):
+
+        combo_fail = False
+        chunk_lengths[ic] = []
+        score = 1
+
+        print(split_combo)
+        for iss, start_position in enumerate(split_combo[:-1]):
+            # print(iss, start_position)
+            # iss index location would be a "." the chunk start one index after it
+            # print(type(split_indexes.get(start_position, [0])), split_indexes.get(start_position, [0]))
+            start_index = max(start_position, max([-1, *split_indexes.get(start_position, [-1])])) + 1
+            end_index = len(record_arr) if iss == len(split_combo) - 1 else split_combo[iss+1]
+            if end_index - start_index < amounts[iss]:
+                combo_fail = True
+            if not combo_fail:
+                chunks[ic, start_index:end_index] = 1
+                chunk_lengths[ic].append((start_index, end_index))
+                # print(start_index, end_index, record_arr[start_index:end_index])
+                score *= count_possible_combinations_per_chunk(record_arr[start_index:end_index],
+                                                               amounts[iss],
+                                                               )
+
+            else:
+                chunks[ic, :] = -1
+
+        print(score)
+        # for each chunk, make a list of all possibilities, such as "110", "011"
+        # then verify these against record_arr
+        
+        
+        
+
+    print(chunks)
+
+
+
+
+    # ---- Python
+
+    # for ic, split_combo in enumerate(split_index_combinations):
+
+    #     # chunks = {key: [] for key in split_position}
+    #     # values is possible positions for "#" elements
+    #     # keys is start of a split point before the chunks
+    #     chunks = list()
+        
+    #     for iss, start_position in enumerate(split_combo):
+    #         # iss index location would be a "." the chunk start one index after it
+    #         # print(type(split_indexes.get(start_position, [0])), split_indexes.get(start_position, [0]))
+    #         start_index = max(start_position, max([-1, *split_indexes.get(start_position, [-1])])) + 1
+    #         end_index = len(record_arr) if iss == len(split_combo) - 1 else split_combo[iss+1]
+    #         chunks.append((start_index, end_index))
+
+    #     print("\nfor split positions " + str(split_combo))
+    #     print("chunk combination:")
+    #     test_record = ["."] * len(record_arr)
+    #     for chunk in chunks:
+    #         for ic in range(chunk[0], chunk[1]):
+    #             test_record[ic] = "#"
+    #     print("".join(test_record))
+
+    return split_index_combinations
+
+
+arrangements = possible_arrangements("????.#..????..#...", (1, 2, 1, 1, 1))
+
+
+
+
+# print(len(arrangements))
+# print(arrangements)
+
+
+# def trim_down_to_definite(record, amounts):    
+#     record_new = record
+#     new_amounts = amounts.copy()
+#     while record_new[-1] == "?":
+#         record_new = record_new.removesuffix("?")
+#         new_amounts[-1] -= 1
+#         if new_amounts
+
 
 # def modify_input_for_part_2(record_lines, n_fold=5):
 #     record_lines_long = []
