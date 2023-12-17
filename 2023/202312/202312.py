@@ -65,7 +65,7 @@ print(f"Part 1:\n{sum([len(arrangement) for arrangement in arrangements_per_line
 print(f"Solved in {(perf_counter() - start_time) * 1000:.3g} ms.\n")
 
 # ---- Part 2
-# start_time = perf_counter()
+start_time = perf_counter()
 
 
 def count_possible_combinations_per_chunk(record_values, required_length):
@@ -88,11 +88,10 @@ def make_record_into_array(record):
 
 def possible_arrangements(record_arr, amounts):
 
-    print()
-    print("------", record_arr, amounts)
-    split_indexes = [-1]
+    # print()
+    # print("--------", record_arr, amounts)
+    split_indexes = [[-1]]
     chunks = list()
-    new_possible_split_indexes = list()
     for i, val in enumerate(record_arr):
         val_prev = 0 if i == 0 else record_arr[i-1]
 
@@ -111,125 +110,57 @@ def possible_arrangements(record_arr, amounts):
             else:
                 chunks[-1][-1] = i + 1
 
-            # if we need more split locations, which indexes may those be at
-            if np.all((record_arr[i-1:i+1] != 0) * (record_arr[i] == -1)):
-                new_possible_split_indexes.append(i)
-
-    print(f"existing split positions: {split_indexes}")
-    print(f"chunks: {chunks}")
-
-    # print(f"new possible split positions: {new_possible_split_indexes}")
+    # print(f"existing split positions: {split_indexes}")
+    # print(f"chunks: {chunks}")
 
     # # create combinations with added split points
     # total amount of split points need to match the amount of lengths given by puzzle
     n_missing_split_points = len(amounts) - len(chunks)
-    print(f"missing split points: {n_missing_split_points}")
-    # if n_missing_split_points < 1:  # why was it negative in some case??
-    #     split_index_combinations = [[*split_indexes.keys()],]
-    # else:
-    #     new_split_index_combinations = combinations(new_possible_split_indexes, n_missing_split_points)
-    #     split_index_combinations = []
-    #     for combo in new_split_index_combinations:
-    #         # make a list of all split indexes, including the start (-1) and end (len)
-    #         split_index_combo = sorted([*split_indexes.keys(), *combo])
-    #         if np.all(np.diff(split_index_combo) > 1):
-    #             # sort out neighbouring split positions
-    #             split_index_combinations.append(split_index_combo)
-    # print(f"Combined split positions: {split_index_combinations}")
+    # print(f"missing split points: {n_missing_split_points}")
 
     # in which chunks to add these new splits into
     addition_combos = np.ones(((n_missing_split_points + 1)**len(chunks), len(chunks)), dtype=int)
-    # addition_combos[:, :] = range(len(chunks))
     for i, combo in enumerate(product(range(n_missing_split_points + 1), repeat=len(chunks))):
         addition_combos[i, :] += combo
-    print(f"new amounts to split into per tag: {addition_combos[np.sum(addition_combos, axis=1) == len(amounts)]}")
+    # print(f"new amounts to split into per tag: {addition_combos[np.sum(addition_combos, axis=1) == len(amounts)]}")
 
     scores = []
     for row in addition_combos[np.sum(addition_combos, axis=1) == len(amounts)]:
-        print("----combination:", row)
+        # print("------combination:", row)
         scores_per_chunk = []
         for i_section, n_chunks in enumerate(row):
-            print("--section", i_section, n_chunks, "piece")
+            # print("----section", i_section, n_chunks, "piece")
             start_index = chunks[i_section][0]
             end_index = chunks[i_section][1]
             record_chunk = np.array(record_arr[start_index:end_index])
             amounts_start_index = np.sum(row[:i_section])
             expected_amount = amounts[amounts_start_index:amounts_start_index+n_chunks]
-            print("record and amount:", record_chunk, expected_amount)
+            free_play = len(record_chunk) - sum(expected_amount) - len(expected_amount) + 1
+            # print("record and amount:", record_chunk, expected_amount)
+            
+            offset_scores = []
+            # print("--offsets")
+            for offset in range(free_play + 1):
+                # print("offset", offset)
+                len_1 = expected_amount[0]
+                if (offset == 0 or np.all(record_chunk[:offset] != 1)) and (offset+len_1 == len(record_chunk) or record_chunk[offset+len_1] != 1):
+                    score_offset = 1
+                else:
+                    score_offset = 0
+                    continue
+                if len(expected_amount) > 1:
+                    score_offset *= possible_arrangements(record_chunk[expected_amount[0] + 1 + offset:], expected_amount[1:])
+                offset_scores.append(score_offset)
+                # print("offset scores: ", offset_scores)
 
-            if n_chunks == 1 and len(record_chunk) == expected_amount[0]:
-                score = 1
-
-            elif n_chunks > 1 and np.any(record_chunk[1:-1] == -1):
-                break_size = len(record_chunk) - sum(expected_amount)
-                break_points = np.where(record_chunk[1:-1] == -1)[0] + 1
-                version_score = []
-                for break_point in break_points:
-                    print("breaking at index", break_point)
-                    score_first_part = count_possible_combinations_per_chunk(record_chunk[:break_point], expected_amount[0])
-                    score_second_part = possible_arrangements(record_chunk[break_point+break_size:], expected_amount[1:])
-                    version_score.append(score_first_part * score_second_part)
-                score = sum(version_score)
-
-            else:
-                score = 0
-            print("chunk score:", score)
-            scores_per_chunk.append(score)
+            scores_per_chunk.append(sum(offset_scores))
+        # print("chunk scores:", scores_per_chunk)
         scores.append(np.prod(scores_per_chunk))
-    print("scores per combination:", scores)
+    # print("scores per combination:", scores)
         
 
     return(np.sum(scores))
 
-
-
-
-
-
-
-    # ---- Numpy
-
-    # chunks = np.zeros((len(split_indexes), len(record_arr) + 2), dtype=int)
-    # chunk_lengths = dict()
-
-    # split_combo = []
-    # # score = 1
-
-    # for iss, start_position in enumerate([*split_combo[:-1]]):
-    #     print(iss, "start_position:", start_position)
-    #     # iss index location would be a "." the chunk start one index after it
-    #     print(type(split_indexes.get(start_position, [0])), split_indexes.get(start_position, [0]))
-    #     start_index = max(
-    #         start_position,
-    #         max([-1, *split_indexes.get(start_position, [-1])]),
-    #                     ) + 1
-    #     end_index = len(record_arr) if iss == len(split_combo) else split_combo[iss+1]
-    #     print(start_index, end_index, record_arr[start_index:end_index], amounts[iss])
-
-    #     possibilities = end_index - start_index - amounts[iss] + 1
-    #     if possibilities == 0:
-    #         # combo_fail = True
-    #         print("score:", 0)
-    #     else:
-    #         score = possibilities
-    #         # chunks[ic, start_index:end_index] = 1
-    #         # chunk_lengths[ic].append((start_index, end_index))
-    #         # score_of_chunk = count_possible_combinations_per_chunk(record_arr[start_index:end_index],
-    #         #                                                        amounts[iss],
-    #         #                                                        )
-    #         print(f"Score: {score_of_chunk}")
-    #         print()
-    #         score *= score_of_chunk
-
-    #     # else:  # combo fail
-    #     #     chunks[ic, -1] = 0
-
-    # print("score:")
-    # print(score)
-    
-    # print(chunks)
-
-    # return score
 
 
 # arrangements = possible_arrangements("???.###", (1,1,3))
@@ -243,13 +174,15 @@ def possible_arrangements(record_arr, amounts):
 
 
 arrangements_per_line = []
-for record, amounts in record_lines[5:6]:
+for i, (record, amounts) in enumerate(record_lines):
     record_arr = make_record_into_array(record)
     arrangements_per_line.append(possible_arrangements(record_arr, amounts))
+    print()
+    print(f"Solved row {i}: '{record}' {arrangements_per_line[-1]} combinations")
+    print(f"Elapsed time: {(perf_counter() - start_time) * 1000:.3g} ms")
+
 
 print(f"Part 2:\n{sum(arrangements_per_line)}")
-
-
 
 
 # print(f"Part 2:\n{sum([len(arrangement) for arrangement in arrangements_per_line])}")
