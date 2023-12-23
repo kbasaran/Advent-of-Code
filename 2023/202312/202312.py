@@ -6,7 +6,7 @@ with open("test.txt") as f:
     p_in = f.read()
 
 from time import perf_counter
-from itertools import product, combinations
+from itertools import product
 import numpy as np
 from math import comb
 # from functools import lru_cache
@@ -85,13 +85,25 @@ def make_record_into_array(record):
     # -1 is the question marks
     return record_arr
 
+def split_combo_generator(n_sections_cur: int, n_sections_new: int) -> object:
+    combos = product(range(n_sections_new + 1), repeat=n_sections_cur)
+    gen = (array for array in combos if sum(array) == n_sections_new)
+    return gen
+
+def test_split_combo_generator(a, b):
+    gen = split_combo_generator(a, b)
+    for arr in gen:
+        print(arr)
+
+test_split_combo_generator(1, 3)
+
 
 def possible_arrangements(record_arr, amounts):
 
-    # print()
-    # print("--------", record_arr, amounts)
+    print()
+    print("--------", record_arr, amounts)
     split_indexes = [[-1]]
-    chunks = list()
+    free_range_indexes = list()
     for i, val in enumerate(record_arr):
         val_prev = 0 if i == 0 else record_arr[i-1]
 
@@ -106,60 +118,62 @@ def possible_arrangements(record_arr, amounts):
                 j += 1
         elif val == 1 or val == -1:
             if val_prev == 0:
-                chunks.append([i, i + 1])
+                free_range_indexes.append([i, i + 1])
             else:
-                chunks[-1][-1] = i + 1
+                free_range_indexes[-1][-1] = i + 1
 
-    # print(f"existing split positions: {split_indexes}")
-    # print(f"chunks: {chunks}")
+    # print(f"split_indexes: {split_indexes}")
+    print(f"free_range_indexes: {free_range_indexes}")
 
-    # # create combinations with added split points
-    # total amount of split points need to match the amount of lengths given by puzzle
-    n_missing_split_points = len(amounts) - len(chunks)
-    # print(f"missing split points: {n_missing_split_points}")
+    scores_per_combo = []
+    for n_split__per_section in split_combo_generator(len(free_range_indexes), len(amounts)):
+        # e.g. (4, 0, 0, 2)
+        print("------split combination:", n_split__per_section)
+        scores_per_section = []
+        for i_section, n_split in enumerate(n_split__per_section):
+            # e.g. section 0, into 4 pieces
+            scores_per_offset = []
 
-    # in which chunks to add these new splits into
-    addition_combos = np.ones(((n_missing_split_points + 1)**len(chunks), len(chunks)), dtype=int)
-    for i, combo in enumerate(product(range(n_missing_split_points + 1), repeat=len(chunks))):
-        addition_combos[i, :] += combo
-    # print(f"new amounts to split into per tag: {addition_combos[np.sum(addition_combos, axis=1) == len(amounts)]}")
+            if n_split == 0:
+                pass
+            else:
+                print("----section", i_section, ",", n_split, "piece")
+                start_index_of_free_range = free_range_indexes[i_section][0]
+                end_index_of_free_range = free_range_indexes[i_section][1]
+                record_free_range = record_arr[start_index_of_free_range:end_index_of_free_range]
+                amounts_start_index = np.sum(n_split__per_section[:i_section], dtype=int)
+                amount_new = amounts[amounts_start_index:amounts_start_index+n_split]
+                free_play = len(record_free_range) - sum(amount_new) - len(amount_new) + 1
+                len_1 = amount_new[0]
+                print("record and amount_new:", record_free_range, amount_new)
 
-    scores = []
-    for row in addition_combos[np.sum(addition_combos, axis=1) == len(amounts)]:
-        # print("------combination:", row)
-        scores_per_chunk = []
-        for i_section, n_chunks in enumerate(row):
-            # print("----section", i_section, n_chunks, "piece")
-            start_index = chunks[i_section][0]
-            end_index = chunks[i_section][1]
-            record_chunk = np.array(record_arr[start_index:end_index])
-            amounts_start_index = np.sum(row[:i_section])
-            expected_amount = amounts[amounts_start_index:amounts_start_index+n_chunks]
-            free_play = len(record_chunk) - sum(expected_amount) - len(expected_amount) + 1
-            # print("record and amount:", record_chunk, expected_amount)
-            
-            offset_scores = []
-            # print("--offsets")
-            for offset in range(free_play + 1):
-                # print("offset", offset)
-                len_1 = expected_amount[0]
-                if (offset == 0 or np.all(record_chunk[:offset] != 1)) and (offset+len_1 == len(record_chunk) or record_chunk[offset+len_1] != 1):
-                    score_offset = 1
-                else:
-                    score_offset = 0
-                    continue
-                if len(expected_amount) > 1:
-                    score_offset *= possible_arrangements(record_chunk[expected_amount[0] + 1 + offset:], expected_amount[1:])
-                offset_scores.append(score_offset)
-                # print("offset scores: ", offset_scores)
+                # print("--offsets")
+                for offset in range(free_play + 1):
+                    print("--offset", offset)
+                    # why can I not say "== -1" in this next line?
+                    if (offset == 0 or all([val == -1 for val in record_free_range[:offset]])) \
+                        and (offset + len_1 == len(record_free_range) or record_free_range[offset + len_1] == -1):
+                            # if at the beginning or previous elements do not contain 1=="#"
+                            # and if at the end or does not contain following elements of 1=="#"
+                        scores_per_offset.append(1)
+                        
+                        if n_split > 1:
+                            scores_per_offset[-1] *= possible_arrangements(record_free_range[len_1 + 1 + offset:], amount_new[1:])
+                            
+                    else:
+                        scores_per_offset.append(0)
 
-            scores_per_chunk.append(sum(offset_scores))
-        # print("chunk scores:", scores_per_chunk)
-        scores.append(np.prod(scores_per_chunk))
-    # print("scores per combination:", scores)
-        
 
-    return(np.sum(scores))
+            print("scores_per_offset: ", scores_per_offset)
+            scores_per_section.append(sum(scores_per_offset))
+
+        print("scores_per_section:", scores_per_section)
+        scores_per_combo.append(np.prod(scores_per_section, dtype=int))
+
+    print("scores_per_combo:", scores_per_combo)
+
+
+    return(np.sum(scores_per_combo, dtype=int))
 
 
 
@@ -171,18 +185,23 @@ def possible_arrangements(record_arr, amounts):
 # arrangements = possible_arrangements("?###????????", (3, 2, 1))  # 10
 
 
+def fold_input(record, amounts, n_fold):
+    assert isinstance(record, str)
+    assert isinstance(amounts, list)
+    return record * n_fold, amounts * n_fold
 
 
 arrangements_per_line = []
 for i, (record, amounts) in enumerate(record_lines):
-    record_arr = make_record_into_array(record)
-    arrangements_per_line.append(possible_arrangements(record_arr, amounts))
+    folded_record, folded_amounts = fold_input(record, amounts, 5)
+    record_arr = make_record_into_array(folded_record)
+    arrangements_per_line.append(possible_arrangements(record_arr, folded_amounts))
     print()
-    print(f"Solved row {i}: '{record}' {arrangements_per_line[-1]} combinations")
+    print(f"Solved row {i}: '{folded_record}' {arrangements_per_line[-1]} combinations")
     print(f"Elapsed time: {(perf_counter() - start_time) * 1000:.3g} ms")
 
 
-print(f"Part 2:\n{sum(arrangements_per_line)}")
+print(f"Part 2:\n{arrangements_per_line}")
 
 
 # print(f"Part 2:\n{sum([len(arrangement) for arrangement in arrangements_per_line])}")
