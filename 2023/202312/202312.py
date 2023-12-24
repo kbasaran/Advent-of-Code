@@ -8,7 +8,6 @@ with open("test.txt") as f:
 from time import perf_counter
 from itertools import product
 import numpy as np
-from math import comb
 # from functools import lru_cache
 
 # ---- Part 1
@@ -22,8 +21,6 @@ def parse_input(p_in):
         record_lines.append((record, [int(val) for val in amounts_str.split(",")]))
 
     return record_lines  # tuple of record and amount
-
-# @lru_cache
 
 
 def make_arrangement(length, amounts, shift):
@@ -78,6 +75,7 @@ def count_possible_combinations_per_chunk(record_values, required_length):
 
 # count_possible_combinations_per_chunk(np.array([0,0,1,0,0,0]), 3)
 
+
 def make_record_into_array(record):
     record_as_list = list(record.replace("?", "0").replace(".", "1").replace("#", "2"))
     # record_arr = np.zeros(len(record_as_list) + 2, dtype=int)
@@ -85,23 +83,25 @@ def make_record_into_array(record):
     # -1 is the question marks
     return record_arr
 
+
 def split_combo_generator(n_sections_cur: int, n_sections_new: int) -> object:
     combos = product(range(n_sections_new + 1), repeat=n_sections_cur)
     gen = (array for array in combos if sum(array) == n_sections_new)
     return gen
+
 
 def test_split_combo_generator(a, b):
     gen = split_combo_generator(a, b)
     for arr in gen:
         print(arr)
 
-test_split_combo_generator(1, 3)
+# test_split_combo_generator(1, 3)
 
 
 def possible_arrangements(record_arr, amounts):
 
-    print()
-    print("--------", record_arr, amounts)
+    # print()
+    # print("--------", record_arr, amounts)
     split_indexes = [[-1]]
     free_range_indexes = list()
     for i, val in enumerate(record_arr):
@@ -123,21 +123,20 @@ def possible_arrangements(record_arr, amounts):
                 free_range_indexes[-1][-1] = i + 1
 
     # print(f"split_indexes: {split_indexes}")
-    print(f"free_range_indexes: {free_range_indexes}")
+    # print(f"free_range_indexes: {free_range_indexes}")
 
     scores_per_combo = []
     for n_split__per_section in split_combo_generator(len(free_range_indexes), len(amounts)):
         # e.g. (4, 0, 0, 2)
-        print("------split combination:", n_split__per_section)
+        # print("------split combination:", n_split__per_section)
         scores_per_section = []
         for i_section, n_split in enumerate(n_split__per_section):
             # e.g. section 0, into 4 pieces
-            scores_per_offset = []
 
             if n_split == 0:
-                pass
+                scores_per_offset = 1
             else:
-                print("----section", i_section, ",", n_split, "piece")
+                # print("----section", i_section, ",", n_split, "piece")
                 start_index_of_free_range = free_range_indexes[i_section][0]
                 end_index_of_free_range = free_range_indexes[i_section][1]
                 record_free_range = record_arr[start_index_of_free_range:end_index_of_free_range]
@@ -145,55 +144,46 @@ def possible_arrangements(record_arr, amounts):
                 amount_new = amounts[amounts_start_index:amounts_start_index+n_split]
                 free_play = len(record_free_range) - sum(amount_new) - len(amount_new) + 1
                 len_1 = amount_new[0]
-                print("record and amount_new:", record_free_range, amount_new)
+                # print("record and amount_new:", record_free_range, amount_new)
 
-                # print("--offsets")
+                scores_per_offset = 0
                 for offset in range(free_play + 1):
-                    print("--offset", offset)
+                    # print("--offset", offset)
                     # why can I not say "== -1" in this next line?
                     if (offset == 0 or all([val == -1 for val in record_free_range[:offset]])) \
                         and (offset + len_1 == len(record_free_range) or record_free_range[offset + len_1] == -1):
                             # if at the beginning or previous elements do not contain 1=="#"
                             # and if at the end or does not contain following elements of 1=="#"
-                        scores_per_offset.append(1)
+                        scores_per_offset += 1
                         
                         if n_split > 1:
-                            scores_per_offset[-1] *= possible_arrangements(record_free_range[len_1 + 1 + offset:], amount_new[1:])
+                            scores_per_offset += -1 + possible_arrangements(record_free_range[len_1 + 1 + offset:], amount_new[1:])
                             
                     else:
-                        scores_per_offset.append(0)
+                        pass
 
 
-            print("scores_per_offset: ", scores_per_offset)
-            scores_per_section.append(sum(scores_per_offset))
+            # print("scores_per_offset: ", scores_per_offset)
+            scores_per_section.append(scores_per_offset)
 
-        print("scores_per_section:", scores_per_section)
+        # print("scores_per_section:", scores_per_section)
         scores_per_combo.append(np.prod(scores_per_section, dtype=int))
 
-    print("scores_per_combo:", scores_per_combo)
+    # print("scores_per_combo:", scores_per_combo)
 
 
     return(np.sum(scores_per_combo, dtype=int))
 
 
-
-# arrangements = possible_arrangements("???.###", (1,1,3))
-# arrangements = possible_arrangements(".??..??...?##.", (1,1,3))
-# arrangements = possible_arrangements("?#?#?#?#?#?#?#?", (1,3,1,6))
-# arrangements = possible_arrangements("????.#...#...", (4,1,1))
-# arrangements = possible_arrangements("????.######..#####.", (1,6,5))
-# arrangements = possible_arrangements("?###????????", (3, 2, 1))  # 10
-
-
 def fold_input(record, amounts, n_fold):
     assert isinstance(record, str)
     assert isinstance(amounts, list)
-    return record * n_fold, amounts * n_fold
+    return ((record + "?") * n_fold)[:-1], amounts * n_fold
 
 
 arrangements_per_line = []
 for i, (record, amounts) in enumerate(record_lines):
-    folded_record, folded_amounts = fold_input(record, amounts, 5)
+    folded_record, folded_amounts = fold_input(record, amounts, 2)
     record_arr = make_record_into_array(folded_record)
     arrangements_per_line.append(possible_arrangements(record_arr, folded_amounts))
     print()
