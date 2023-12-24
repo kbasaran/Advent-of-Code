@@ -54,12 +54,12 @@ def possible_arrangements(record, amounts):
 
 
 record_lines = parse_input(p_in)
-arrangements_per_line = []
-for record, amounts in record_lines:
-    arrangements_per_line.append(possible_arrangements(record, amounts))
+# arrangements_per_line = []
+# for record, amounts in record_lines:
+#     arrangements_per_line.append(possible_arrangements(record, amounts))
 
-print(f"Part 1:\n{sum([len(arrangement) for arrangement in arrangements_per_line])}")
-print(f"Solved in {(perf_counter() - start_time) * 1000:.3g} ms.\n")
+# print(f"Part 1:\n{sum([len(arrangement) for arrangement in arrangements_per_line])}")
+# print(f"Solved in {(perf_counter() - start_time) * 1000:.3g} ms.\n")
 
 # ---- Part 2
 start_time = perf_counter()
@@ -78,12 +78,39 @@ def split_combo_generator(n_sections_cur: int, n_sections_new: int) -> object:
     return gen
 
 
+@cache
+def split_combos(n_sections_cur: int, n_sections_new: int) -> object:
+    gen = split_combo_generator(n_sections_cur, n_sections_new)
+    return tuple(list(gen))
+
+
 def test_split_combo_generator(a, b):
     gen = split_combo_generator(a, b)
     for arr in gen:
         print(arr)
 
 # test_split_combo_generator(1, 3)
+
+
+@cache
+def arrangements_per_section(record_single, amount_new):
+    free_play = len(record_single) - sum(amount_new) - len(amount_new) + 1
+    len_1 = amount_new[0]
+    # print("record and amount_new:", record_single, amount_new)
+
+    section_score = 0
+    for offset in range(free_play + 1):
+        # print("--offset", offset)
+        if (offset == 0 or all([val == -1 for val in record_single[:offset]])) \
+            and (offset + len_1 == len(record_single) or record_single[offset + len_1] == -1):
+                # if at the beginning or previous elements do not contain 1=="#"
+                # and if at the end or does not contain following elements of 1=="#"
+            section_score += 1
+
+            if len(amount_new) > 1:
+                section_score += -1 + possible_arrangements(record_single[len_1 + 1 + offset:], amount_new[1:])
+
+    return section_score
 
 
 @cache
@@ -103,11 +130,11 @@ def possible_arrangements(record_w_digits, amounts):
 
     # print(f"free_range_indexes: {free_range_indexes}")
 
-    scores_per_combo = 0
-    for n_split__per_section in split_combo_generator(len(free_range_indexes), len(amounts)):
+    end_score = 0
+    for n_split__per_section in split_combos(len(free_range_indexes), len(amounts)):
         # e.g. (4, 0, 0, 2)
         # print("------split combination:", n_split__per_section)
-        scores_per_section = 1
+        combo_score = 1
         for i_section, n_split in enumerate(n_split__per_section):
             # e.g. section 0, into 4 pieces
 
@@ -118,34 +145,19 @@ def possible_arrangements(record_w_digits, amounts):
                 start_index_of_free_range = free_range_indexes[i_section][0]
                 end_index_of_free_range = free_range_indexes[i_section][1]
                 record_free_range = record_w_digits[start_index_of_free_range:end_index_of_free_range]
-                amounts_start_index = np.sum(n_split__per_section[:i_section], dtype=int)
+                amounts_start_index = sum(n_split__per_section[:i_section])
                 amount_new = amounts[amounts_start_index:amounts_start_index+n_split]
-                free_play = len(record_free_range) - sum(amount_new) - len(amount_new) + 1
-                len_1 = amount_new[0]
-                # print("record and amount_new:", record_free_range, amount_new)
 
-                section_score = 0
-                for offset in range(free_play + 1):
-                    # print("--offset", offset)
-                    if (offset == 0 or all([val == -1 for val in record_free_range[:offset]])) \
-                        and (offset + len_1 == len(record_free_range) or record_free_range[offset + len_1] == -1):
-                            # if at the beginning or previous elements do not contain 1=="#"
-                            # and if at the end or does not contain following elements of 1=="#"
-                        section_score += 1
-                        
-                        if n_split > 1:
-                            section_score += -1 + possible_arrangements(record_free_range[len_1 + 1 + offset:], amount_new[1:])
+                section_score = arrangements_per_section(record_free_range, amount_new)
 
             # print("section_score: ", section_score)
-            scores_per_section *= section_score
+            combo_score *= section_score
 
-        # print("scores_per_section:", scores_per_section)
-        scores_per_combo += scores_per_section
+        # print("combo_score:", combo_score)
+        end_score += combo_score
 
-    # print("scores_per_combo:", scores_per_combo)
-
-
-    return scores_per_combo
+    # print("end_score:", end_score)
+    return end_score
 
 
 def fold_input(record, amounts, n_fold):
